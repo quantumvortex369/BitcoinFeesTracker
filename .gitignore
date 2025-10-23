@@ -1,0 +1,20 @@
+# Binarios y archivos objeto
+*.o
+btc_fee_visualizer
+
+# Archivos de caché
+/tmp/btc_fee_cache.json
+
+# Archivos de datos generados
+*.csv
+
+# Directorios de entorno
+venv/
+__pycache__/
+
+# Archivos del editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
