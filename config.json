@@ -1,0 +1,30 @@
+{
+    "theme": "dark",
+    "refresh_interval": 300,
+    "notifications": {
+        "enabled": true,
+        "fee_threshold": 10.0,
+        "price_change_threshold": 2.0
+    },
+    "currency": {
+        "primary": "USD",
+        "secondary": "EUR"
+    },
+    "chart": {
+        "timeframe": "24h",
+        "show_volume": true,
+        "show_average": true
+    },
+    "alerts": [
+        {
+            "type": "fee_drop",
+            "target": 5.0,
+            "enabled": true
+        },
+        {
+            "type": "price_increase",
+            "target": 5.0,
+            "enabled": true
+        }
+    ]
+}

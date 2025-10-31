@@ -14,6 +14,43 @@
 #define CACHE_FILE "/tmp/btc_fee_cache.json"
 #define MAX_SOURCES 3
 
+// Estructura para un punto en el historial
+typedef struct {
+    double fastest;
+    double halfHour;
+    double hour;
+    time_t timestamp;
+} FeeHistoryPoint;
+
+// Estructura para el historial de tarifas
+typedef struct {
+    FeeHistoryPoint *points;
+    int size;
+    int capacity;
+    int current;
+} FeeHistory;
+
+// Estructura para almacenar datos de tarifas
+typedef struct {
+    // Tarifas actuales
+    double fastestFee;      // Fastest fee (sat/vB)
+    double halfHourFee;     // Half hour fee (sat/vB)
+    double hourFee;         // Hour fee (sat/vB)
+    
+    // Datos de la red
+    int blocks;             // Current block height
+    double mempoolSizeMB;   // Mempool size in MB
+    
+    // Precios
+    double btc_price_usd;   // Precio de BTC en USD
+    double btc_price_eur;   // Precio de BTC en EUR
+    
+    // Historial
+    FeeHistory history;     // Historial de tarifas
+    
+    time_t timestamp;       // Last update time
+} FeeData;
+
 // Variable global para controlar la visualización del historial
 int show_history = 1;
 
@@ -55,47 +92,11 @@ typedef struct {
     time_t timestamp;
 } CacheEntry;
 
-// Estructura para almacenar un punto en el historial
-typedef struct {
-    double fastestFee;
-    double halfHourFee;
-    double hourFee;
-    time_t timestamp;
-} FeeHistoryPoint;
-
-// Estructura para el historial de tarifas
-typedef struct {
-    FeeHistoryPoint *points;
-    int size;
-    int capacity;
-    int current;
-} FeeHistory;
-
-// Structure to hold fee data
-typedef struct {
-    // Tarifas actuales
-    double fastestFee;      // Fastest fee (sat/vB)
-    double halfHourFee;     // Half hour fee (sat/vB)
-    double hourFee;         // Hour fee (sat/vB)
-    
-    // Datos de la red
-    int blocks;             // Current block height
-    int mempoolSizeMB;      // Mempool size in MB
-    
-    // Precios
-    double btc_price_usd;   // Precio de BTC en USD
-    double btc_price_eur;   // Precio de BTC en EUR
-    
-    // Historial
-    FeeHistory history;     // Historial de tarifas
-    
-    time_t timestamp;       // Last update time
-} FeeData;
-
 // Declaraciones de funciones
 void init_fee_history(FeeHistory *history, int capacity);
 void add_to_history(FeeHistory *history, double fastest, double halfHour, double hour);
 void draw_trend_graph(WINDOW *win, FeeHistory *history, int y, int x, int height, int width);
+void draw_fee_visualization(FeeData *fee_data);
 
 // Callback function for CURL to write response
 size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
@@ -184,10 +185,13 @@ int load_from_cache(FeeData *data) {
     long fsize = ftell(f);
     fseek(f, 0, SEEK_SET);
     
-    char *json_str = malloc(fsize + 1);
-    fread(json_str, 1, fsize, f);
-    fclose(f);
-    json_str[fsize] = 0;
+    char *json_str = (char *)malloc(fsize + 1);
+    if (fread(json_str, 1, fsize, f) != (size_t)fsize) {
+        free(json_str);
+        fclose(f);
+        return 0;
+    }
+    json_str[fsize] = '\0';
     
     cJSON *root = cJSON_Parse(json_str);
     free(json_str);
@@ -218,9 +222,11 @@ void export_data_to_csv(const FeeData *data, const char *filename) {
         fprintf(f, "timestamp,fastest_fee,half_hour_fee,hour_fee,blocks,mempool_mb,btc_usd,btc_eur\n");
     }
     
+    // Obtener la hora local
     char time_str[64];
     strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", localtime(&data->timestamp));
     
+    // Escribir los datos
     fprintf(f, "\"%s\",%.1f,%.1f,%.1f,%d,%.2f,%.2f,%.2f\n",
             time_str,
             data->fastestFee,
@@ -247,9 +253,9 @@ void export_history_to_csv(const FeeHistory *history, const char *filename) {
         
         fprintf(f, "\"%s\",%.1f,%.1f,%.1f\n",
                 time_str,
-                history->points[i].fastestFee,
-                history->points[i].halfHourFee,
-                history->points[i].hourFee);
+                history->points[i].fastest,
+                history->points[i].halfHour,
+                history->points[i].hour);
     }
     
     fclose(f);
@@ -344,7 +350,6 @@ int fetch_from_source(const DataSource *source, FeeData *fee_data) {
 
 // Función para obtener datos, con reintentos y caché
 int fetch_fee_data(FeeData *fee_data) {
-    static int last_source = -1;
     int attempts = 0;
     int success = 0;
     
@@ -419,7 +424,7 @@ void draw_fee_visualization(FeeData *fee_data) {
         mvprintw(4, max_x - 20, "Bloque: %d", fee_data->blocks);
     }
     if (fee_data->mempoolSizeMB > 0) {
-        mvprintw(5, 2, "Mempool: %d MB", fee_data->mempoolSizeMB);
+        mvprintw(5, 2, "Mempool: %.2f MB", fee_data->mempoolSizeMB);
     }
     
     // Draw separator
@@ -524,16 +529,20 @@ void init_fee_history(FeeHistory *history, int capacity) {
 // Agregar un punto al historial
 void add_to_history(FeeHistory *history, double fastest, double halfHour, double hour) {
     if (history->size < history->capacity) {
-        history->size++;
+        int index = history->size++;
+        history->points[index].fastest = fastest;
+        history->points[index].halfHour = halfHour;
+        history->points[index].hour = hour;
+        history->points[index].timestamp = time(NULL);
+    } else {
+        // Usar el índice actual para sobrescribir el punto más antiguo
+        int index = history->current;
+        history->points[index].fastest = fastest;
+        history->points[index].halfHour = halfHour;
+        history->points[index].hour = hour;
+        history->points[index].timestamp = time(NULL);
+        history->current = (history->current + 1) % history->capacity;
     }
-    
-    int index = history->current % history->capacity;
-    history->points[index].fastestFee = fastest;
-    history->points[index].halfHourFee = halfHour;
-    history->points[index].hourFee = hour;
-    history->points[index].timestamp = time(NULL);
-    
-    history->current = (history->current + 1) % history->capacity;
 }
 
 // Dibujar el gráfico de tendencia
@@ -543,60 +552,51 @@ void draw_trend_graph(WINDOW *win, FeeHistory *history, int y, int x, int height
     // Encontrar el valor máximo para escalar el gráfico
     double max_fee = 0;
     for (int i = 0; i < history->size; i++) {
-        if (history->points[i].fastestFee > max_fee) max_fee = history->points[i].fastestFee;
-        if (history->points[i].halfHourFee > max_fee) max_fee = history->points[i].halfHourFee;
-        if (history->points[i].hourFee > max_fee) max_fee = history->points[i].hourFee;
+        if (history->points[i].fastest > max_fee) max_fee = history->points[i].fastest;
+        if (history->points[i].halfHour > max_fee) max_fee = history->points[i].halfHour;
+        if (history->points[i].hour > max_fee) max_fee = history->points[i].hour;
     }
     
-    if (max_fee <= 0) return;
+    if (max_fee <= 0) max_fee = 1;  // Evitar división por cero
     
-    // Dibujar ejes
-    mvwaddch(win, y + height - 1, x - 1, ACS_LLCORNER);
-    mvwhline(win, y + height - 1, x, ACS_HLINE, width);
-    mvwvline(win, y, x - 1, ACS_VLINE, height - 1);
-    
-    // Dibujar líneas de referencia
-    for (int i = 0; i <= 4; i++) {
-        int y_pos = y + (height - 1) * (4 - i) / 4;
-        mvwaddch(win, y_pos, x - 1, ACS_LTEE);
-        mvwprintw(win, y_pos, x - 8, "%3.0f", max_fee * i / 4);
-    }
-    
-    // Dibujar las líneas de tendencia
-    int points = history->size < width ? history->size : width;
-    int start = (history->current - points + history->capacity) % history->capacity;
-    
-    // Dibujar líneas para cada tipo de tarifa
+    // Dibujar el gráfico
     for (int t = 0; t < 3; t++) {
-        int prev_y = -1;
+        int color_pair = t + 1;
+        wattron(win, COLOR_PAIR(color_pair));
         
-        for (int i = 0; i < points; i++) {
-            int idx = (start + i) % history->capacity;
-            double fee = (t == 0) ? history->points[idx].fastestFee : 
-                        (t == 1) ? history->points[idx].halfHourFee : 
-                                 history->points[idx].hourFee;
+        for (int i = 0; i < width - 1 && i < history->size - 1; i++) {
+            int idx1 = (history->current - i - 1 + history->capacity) % history->capacity;
+            int idx2 = (history->current - i - 2 + history->capacity) % history->capacity;
             
-            int current_y = y + (height - 2) - (int)((fee / max_fee) * (height - 2));
+            if (idx1 < 0 || idx2 < 0 || idx1 >= history->size || idx2 >= history->size) continue;
             
-            // Asegurarse de que estamos dentro de los límites
-            if (current_y < y) current_y = y;
-            if (current_y >= y + height - 1) current_y = y + height - 2;
+            double fee1 = (t == 0) ? history->points[idx1].fastest :
+                         (t == 1) ? history->points[idx1].halfHour :
+                                   history->points[idx1].hour;
+                                   
+            double fee2 = (t == 0) ? history->points[idx2].fastest :
+                         (t == 1) ? history->points[idx2].halfHour :
+                                   history->points[idx2].hour;
             
-            // Dibujar el punto
-            mvwaddch(win, current_y, x + i, (t == 0) ? 'F' : (t == 1) ? 'M' : 'S');
+            int y1 = y + height - 1 - (int)((fee1 / max_fee) * (height - 2));
+            int y2 = y + height - 1 - (int)((fee2 / max_fee) * (height - 2));
             
-            // Conectar con el punto anterior
-            if (i > 0 && prev_y != -1) {
-                int y1 = prev_y;
-                int y2 = current_y;
-                if (y1 > y2) { int tmp = y1; y1 = y2; y2 = tmp; }
-                for (int yy = y1 + 1; yy < y2; yy++) {
-                    mvwaddch(win, yy, x + i - 1, ACS_VLINE);
+            // Asegurarse de que los valores estén dentro de los límites
+            y1 = (y1 < y) ? y : (y1 >= y + height) ? y + height - 1 : y1;
+            y2 = (y2 < y) ? y : (y2 >= y + height) ? y + height - 1 : y2;
+            
+            mvwaddch(win, y1, x + width - 2 - i, ACS_CKBOARD);
+            
+            // Dibujar línea entre puntos
+            if (y1 != y2) {
+                int step = (y2 > y1) ? 1 : -1;
+                for (int py = y1; py != y2; py += step) {
+                    mvwaddch(win, py, x + width - 2 - i, ACS_VLINE);
                 }
             }
-            
-            prev_y = current_y;
         }
+        
+        wattroff(win, COLOR_PAIR(color_pair));
     }
     
     // Leyenda

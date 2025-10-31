@@ -1,0 +1,284 @@
+/* Main window styles */
+.window {
+  background-color: #ffffff;
+  color: #2e3440;
+  font-family: 'Inter', 'Roboto', Arial, sans-serif;
+}
+
+/* Header styles */
+.header {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid #d8dee9;
+  padding: 12px 16px;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #5e81ac;
+}
+
+/* Status bar styles */
+.status-bar {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid #d8dee9;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #2e3440;
+  opacity: 0.8;
+}
+
+/* Card styles */
+.card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d8dee9;
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  -gtk-icon-transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Button styles */
+.button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #d8dee9;
+  background-color: #f8f9fa;
+  color: #2e3440;
+  transition: all 0.2s;
+}
+
+.button:hover {
+  background-color: #e9ecef;
+}
+
+.button.primary {
+  background-color: #5e81ac;
+  color: #ffffff;
+  border-color: #4c6d8a;
+}
+
+/* Status indicator styles */
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-indicator.online {
+  background-color: #a3be8c;
+  box-shadow: 0 0 8px #a3be8c;
+}
+
+.status-indicator.offline {
+  background-color: #bf616a;
+  box-shadow: 0 0 8px #bf616a;
+}
+
+/* Chart container styles */
+.chart-container {
+  position: relative;
+  height: 200px;
+  margin-top: 16px;
+}
+
+/* Fee card styles */
+.fee-card {
+  padding: 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+  background-color: #ffffff;
+  border-left: 4px solid #5e81ac;
+}
+
+.fee-card .fee-value {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 8px 0;
+  color: #2e3440;
+}
+
+.fee-card .fee-label {
+  font-size: 12px;
+  color: #4c566a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4c566a;
+  margin: 0 0 12px 0;
+}
+
+/* Title styles */
+.title-1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: #2e3440;
+}
+
+.title-2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #3b4252;
+}
+
+.title-3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #4c566a;
+}
+
+/* Dark theme overrides */
+.dark .window {
+  background-color: #2e3440;
+  color: #e5e9f0;
+}
+
+.dark .header {
+  background-color: rgba(46, 52, 64, 0.9);
+  border-bottom-color: #4c566a;
+}
+
+.dark .card {
+  background-color: #3b4252;
+  border-color: #4c566a;
+  color: #e5e9f0;
+}
+
+.dark .button {
+  background-color: #4c566a;
+  color: #e5e9f0;
+  border-color: #5e81ac;
+}
+
+.dark .button:hover {
+  background-color: #5e81ac;
+}
+
+.window {
+  background-color: #ffffff;
+  color: #2e3440;
+  font-family: 'Inter', 'Roboto', Arial, sans-serif;
+}
+
+.header {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid #d8dee9;
+  padding: 12px 16px;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #5e81ac;
+}
+
+.status-bar {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid #d8dee9;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #2e3440;
+  opacity: 0.8;
+}
+
+.card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d8dee9;
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  -gtk-icon-transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #d8dee9;
+  background-color: #f8f9fa;
+  color: #2e3440;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.button:hover {
+  background-color: #e9ecef;
+}
+
+.button.primary {
+  background-color: #5e81ac;
+  color: #ffffff;
+  border-color: #4c6d8a;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-indicator.online {
+  background-color: #a3be8c;
+  box-shadow: 0 0 8px #a3be8c;
+}
+
+.status-indicator.offline {
+  background-color: #bf616a;
+  box-shadow: 0 0 8px #bf616a;
+}
+
+.chart-container {
+  position: relative;
+  height: 200px;
+  margin-top: 16px;
+}
+
+.fee-card {
+  padding: 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+  background-color: #ffffff;
+  border-left: 4px solid #5e81ac;
+}
+
+.fee-card .fee-value {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 8px 0;
+  color: #2e3440;
+}
+
+.fee-card .fee-label {
+  font-size: 12px;
+  color: #4c566a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4c566a;
+  margin: 0 0 12px 0;
+}

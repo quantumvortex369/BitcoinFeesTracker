@@ -2,13 +2,24 @@
 
 Visualizador en tiempo real de las tarifas de transacción de Bitcoin con soporte para múltiples fuentes de datos.
 
+## Gas Fee Tracker
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Una aplicación para rastrear y visualizar las tarifas de transacción (gas fees) de múltiples criptomonedas en tiempo real.
+
 ## Características
-- Múltiples fuentes de datos (mempool.space, blockstream.info, bitcoinfees.earn.com)
-- Caché local para funcionamiento sin conexión
-- Exportación de datos a CSV
-- Interfaz en tiempo real con ncurses
+
+- Monitoreo en tiempo real de tarifas de transacción
+- Soporte para múltiples criptomonedas (Bitcoin, Ethereum, etc.)
+- Gráficos históricos interactivos
+- Notificaciones personalizables
+- Interfaz de usuario moderna y personalizable
+- Temas claro/oscuro
 
 ## Requisitos
+
+- GTK+ 3.0 o superior
 - gcc
 - libcurl
 - libcjson
@@ -30,6 +41,3 @@ make
 - `h`: Alternar historial
 - `s`: Cambiar fuente de datos
 - `e`: Exportar datos a CSV
-
-## Licencia
-[MIT](LICENSE)
