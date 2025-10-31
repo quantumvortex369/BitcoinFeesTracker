@@ -4,8 +4,6 @@ Visualizador en tiempo real de las tarifas de transacción de Bitcoin con soport
 
 ## Gas Fee Tracker
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 Una aplicación para rastrear y visualizar las tarifas de transacción (gas fees) de múltiples criptomonedas en tiempo real.
 
 ## Características
